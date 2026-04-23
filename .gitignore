@@ -1,0 +1,47 @@
+# 🔹 Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# 🔹 Ambiente virtual
+venv/
+env/
+.venv/
+
+# 🔹 Arquivos do sistema
+.DS_Store
+Thumbs.db
+
+# 🔹 VS Code
+.vscode/
+.vs/
+# 🔹 Jupyter Notebook
+.ipynb_checkpoints/
+
+# 🔹 Logs
+*.log
+
+# 🔹 Arquivos temporários
+*.tmp
+
+# 🔹 Dados grandes (opcional)
+data/*.csv
+
+# 🔹 Configurações locais
+.env
+
+# 🔹 Cache do pip
+pip-wheel-metadata/
+
+# 🔹 Arquivos de build
+build/
+dist/
+*.egg-info/
+
+# 🔹 Pytest cache (se usar testes)
+.pytest_cache/
+
+# 🔹 Coverage (se usar testes)
+.coverage
+htmlcov/
