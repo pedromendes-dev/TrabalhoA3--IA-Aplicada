@@ -9,6 +9,7 @@ ratings, movies = load_data()
 matrix = create_user_movie_matrix(ratings)
 matrix, model = apply_kmeans(matrix)
 
+
 @app.route("/", methods=["GET", "POST"])
 def index():
     recommendations = None
