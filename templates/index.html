@@ -1,38 +1,82 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
-    <meta charset="UTF-8">
-    <title>Recomendação de Filmes</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Movie AI Recommender</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
+
 <body>
 
-    <div class="container">
-        <h1>🎬 Sistema de Recomendação de Filmes</h1>
+    <header>
+        <div class="logo">🎬 MovieAI</div>
 
-        <form method="POST">
-            <select name="user_id">
-                {% for user in users %}
-                    <option value="{{ user }}">Usuário {{ user }}</option>
-                {% endfor %}
-            </select>
+        <nav>
+            <a href="#">Home</a>
+            <a href="#">Recomendações</a>
+            <a href="#">Sobre</a>
+        </nav>
+    </header>
 
-            <button type="submit">Gerar Recomendações</button>
-        </form>
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Descubra filmes perfeitos para você</h1>
+            <p>
+                Sistema inteligente utilizando Filtragem Colaborativa e K-Means
+                para recomendar filmes personalizados.
+            </p>
+        </div>
+    </section>
+
+    <main class="container">
+
+        <section class="recommendation-panel">
+            <h2>Escolha filmes que você gosta</h2>
+
+            <form method="POST">
+
+                <div class="movie-selector">
+                    {% for movie in movie_titles %}
+                    <label class="checkbox-item">
+                        <input type="checkbox" name="movies" value="{{ movie }}">
+                        <span>{{ movie }}</span>
+                    </label>
+                    {% endfor %}
+                </div>
+
+                <button type="submit">
+                    Recomendar filmes parecidos
+                </button>
+            </form>
+        </section>
 
         {% if recommendations %}
-            <h2>Filmes recomendados</h2>
+        <section>
+            <h2 class="section-title">Filmes recomendados</h2>
 
-            <div class="movies">
+            <div class="movies-grid">
                 {% for movie in recommendations %}
-                    <div class="card">
-                        <h3>{{ movie.title }}</h3>
-                        <p>{{ movie.genres }}</p>
-                    </div>
+                <div class="movie-card">
+                    <div class="movie-poster">🎥</div>
+                    <h3>{{ movie.title }}</h3>
+                    <p>{{ movie.genres }}</p>
+                </div>
                 {% endfor %}
             </div>
+        </section>
         {% endif %}
-    </div>
+
+    </main>
+
+    <footer>
+        <p>
+            Desenvolvido por Yuri Lucas
+        </p>
+        <p>Projeto de Inteligência Artificial</p>
+    </footer>
 
 </body>
+
 </html>
