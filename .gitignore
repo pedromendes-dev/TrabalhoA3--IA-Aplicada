@@ -25,9 +25,6 @@ Thumbs.db
 # 🔹 Arquivos temporários
 *.tmp
 
-# 🔹 Dados grandes (opcional)
-data/*.csv
-
 # 🔹 Configurações locais
 .env
 
