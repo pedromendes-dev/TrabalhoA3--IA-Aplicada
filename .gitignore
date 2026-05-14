@@ -12,7 +12,7 @@ env/
 # 🔹 Arquivos do sistema
 .DS_Store
 Thumbs.db
-
+enrich_dataset.py
 # 🔹 VS Code
 .vscode/
 .vs/
