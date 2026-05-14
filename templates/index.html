@@ -29,17 +29,25 @@
             background: linear-gradient(180deg, rgba(229, 9, 20, 0) 0%, rgba(229, 9, 20, 0.8) 100%);
         }
 
-        .custom-scrollbar::-webkit-scrollbar {
-            width: 6px;
+        .page-btn {
+            background-color: #1a1a1a;
+            padding: 8px 16px;
+            border-radius: 4px;
+            transition: all 0.3s;
         }
 
-        .custom-scrollbar::-webkit-scrollbar-track {
-            background: #141414;
+        .page-btn:hover:not(:disabled) {
+            background-color: #e50914;
         }
 
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: #e50914;
-            border-radius: 10px;
+        .page-btn.active {
+            background-color: #e50914;
+            font-weight: bold;
+        }
+
+        .page-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
         }
     </style>
 </head>
@@ -57,12 +65,11 @@
         </div>
     </nav>
 
-    <header class="relative h-[70vh] flex items-center px-8 md:px-16 overflow-hidden">
+    <header class="relative h-[60vh] flex items-center px-8 md:px-16 overflow-hidden">
         <div class="absolute inset-0 bg-cover bg-center opacity-40"
             style="background-image: url('https://images.unsplash.com/photo-1626814026160-2237a95fc5a0?auto=format&fit=crop&q=80&w=2070');">
         </div>
         <div class="absolute inset-0 bg-gradient-to-r from-black via-transparent to-transparent"></div>
-
         <div class="relative z-10 max-w-2xl">
             <h2 class="text-5xl md:text-7xl font-bold mb-4">Descubra sua próxima história</h2>
             <p class="text-lg text-gray-300 mb-8">Nossa inteligência artificial analisa milhares de padrões para
@@ -76,20 +83,34 @@
     <main id="selection" class="px-8 md:px-16 py-12">
 
         <section class="mb-16">
-            <div class="flex justify-between items-end mb-6">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-8">
                 <div>
                     <h3 class="text-2xl font-semibold">O que você gosta?</h3>
                     <p class="text-gray-400">Selecione alguns filmes para treinarmos sua IA</p>
                 </div>
-                <div class="relative">
-                    <input type="text" id="movieSearch" placeholder="Pesquisar filmes..."
-                        class="bg-zinc-800 text-white border-none rounded-full px-6 py-2 w-64 focus:ring-2 focus:ring-red-600 outline-none">
+
+                <div class="flex flex-col md:flex-row gap-4 items-center">
+                    <div class="flex items-center gap-2">
+                        <span class="text-sm text-gray-400">Por página:</span>
+                        <select id="itemsPerPage"
+                            class="bg-zinc-800 text-white rounded px-3 py-2 outline-none focus:ring-2 focus:ring-red-600">
+                            <option value="12">12</option>
+                            <option value="24" selected>24</option>
+                            <option value="48">48</option>
+                            <option value="96">96</option>
+                        </select>
+                    </div>
+                    <div class="relative">
+                        <input type="text" id="movieSearch" placeholder="Pesquisar em toda a base..."
+                            class="bg-zinc-800 text-white border-none rounded-full px-6 py-2 w-64 md:w-80 focus:ring-2 focus:ring-red-600 outline-none">
+                    </div>
                 </div>
             </div>
 
             <form action="/" method="POST" id="recommendationForm">
-                <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6" id="movieGrid">
-                </div>
+                <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6 mb-12" id="movieGrid"></div>
+
+                <div id="paginationControls" class="flex justify-center items-center gap-2 flex-wrap mb-20"></div>
 
                 <div class="fixed bottom-8 left-1/2 -translate-x-1/2 z-50">
                     <button type="submit"
@@ -101,23 +122,22 @@
         </section>
 
         {% if recommendations %}
-        <section id="results" class="py-12 border-t border-zinc-800">
+        <section id="results" class="py-12 border-t border-zinc-800 scroll-mt-24">
             <h3 class="text-3xl font-bold mb-8 text-red-600">Recomendados para Você</h3>
             <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
                 {% for movie in recommendations %}
-                <div class="netflix-card bg-zinc-900 rounded-lg overflow-hidden border border-zinc-800">
-                    <div class="aspect-[2/3] bg-zinc-800 relative">
+                <div class="netflix-card bg-zinc-900 rounded-lg overflow-hidden border border-zinc-800 h-full">
+                    <div class="aspect-[2/3] bg-zinc-800 relative overflow-hidden">
                         {% if movie.poster_url %}
                         <img src="{{ movie.poster_url }}" alt="{{ movie.title_pt }}"
                             class="w-full h-full object-cover absolute inset-0 z-0">
                         {% endif %}
-
                         <div class="absolute inset-0 red-gradient opacity-60 z-10"></div>
-
                         <div class="relative z-20 h-full flex flex-col justify-end p-4">
                             <span class="text-xs font-bold text-white uppercase tracking-widest">{{
                                 movie.genres.split('|')[0] }}</span>
-                            <h4 class="font-bold text-lg leading-tight text-white">{{ movie.title_pt }}</h4>
+                            <h4 class="font-bold text-lg leading-tight text-white">{{ movie.title_pt or movie.title }}
+                            </h4>
                         </div>
                     </div>
                 </div>
@@ -125,97 +145,123 @@
             </div>
         </section>
         {% endif %}
-
     </main>
 
-    <footer class="py-12 px-8 text-center text-gray-500 text-sm">
-        <p>&copy; Projeto de Inteligência Artificial - Sistema de Recomendação</p>
-    </footer>
-
-    <script id="movies-data" type="application/json">
-        {{ movies_list | tojson }}
-    </script>
+    <script id="movies-data" type="application/json">{{ movies_list | tojson }}</script>
 
     <script>
         const allMovies = JSON.parse(document.getElementById('movies-data').textContent);
         const grid = document.getElementById('movieGrid');
+        const paginationContainer = document.getElementById('paginationControls');
         const searchInput = document.getElementById('movieSearch');
+        const itemsPerPageSelect = document.getElementById('itemsPerPage');
+        const recForm = document.getElementById('recommendationForm');
+
+        let filteredMovies = [...allMovies];
+        let currentPage = 1;
+        let itemsPerPage = parseInt(itemsPerPageSelect.value);
         const selectedMovies = new Set();
 
-        function renderMovies(moviesToRender) {
+        function renderMovies() {
             grid.innerHTML = '';
-            moviesToRender.forEach(movie => {
-                const title = movie.title_pt;
-                const isChecked = selectedMovies.has(title) ? 'checked' : '';
-                const opacityClass = selectedMovies.has(title) ? 'opacity-100' : 'opacity-0';
-                const borderClass = selectedMovies.has(title) ? 'border-red-600' : 'border-zinc-800';
+            const start = (currentPage - 1) * itemsPerPage;
+            const end = start + itemsPerPage;
+            const pageItems = filteredMovies.slice(start, end);
 
-                let imageHtml = '';
-                if (movie.poster_url) {
-                    imageHtml = `<img src="${movie.poster_url}" alt="${title}" class="w-full h-full object-cover">`;
-                } else {
-                    imageHtml = `<div class="flex items-center justify-center h-full p-4 text-center"><span class="text-sm font-medium">${title}</span></div>`;
-                }
+            pageItems.forEach(movie => {
+                const titleKey = movie.title_pt || movie.title;
+                const isSelected = selectedMovies.has(titleKey);
 
                 const card = document.createElement('div');
-                card.className = 'netflix-card relative rounded-lg overflow-hidden group movie-item';
+                card.className = 'netflix-card relative rounded-lg overflow-hidden group movie-item h-full';
                 card.innerHTML = `
-                    <input type="checkbox" name="movies" value="${title}" class="hidden peer" ${isChecked}>
-                    <div class="aspect-[2/3] bg-zinc-900 border ${borderClass} relative">
-                        ${imageHtml}
+                    <div class="aspect-[2/3] bg-zinc-900 border ${isSelected ? 'border-red-600' : 'border-zinc-800'} relative overflow-hidden">
+                        ${movie.poster_url ? `<img src="${movie.poster_url}" class="w-full h-full object-cover">` : `<div class="p-4 text-center">${titleKey}</div>`}
                     </div>
                     <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                         <i class="fa-solid fa-plus text-3xl"></i>
                     </div>
-                    <div class="absolute top-2 right-2 ${opacityClass} transition-opacity check-icon">
+                    <div class="absolute top-2 right-2 ${isSelected ? 'opacity-100' : 'opacity-0'} check-icon">
                         <i class="fa-solid fa-circle-check text-red-600 text-2xl bg-white rounded-full"></i>
-                    </div>
-                    <div class="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black to-transparent opacity-0 group-hover:opacity-100 transition-opacity text-center">
-                        <span class="text-xs font-bold drop-shadow-md">${title}</span>
                     </div>
                 `;
 
-                card.addEventListener('click', () => {
-                    const cb = card.querySelector('input');
-                    const checkIcon = card.querySelector('.check-icon');
-                    const borderDiv = card.querySelector('.aspect-\\[2\\/3\\]');
-
-                    cb.checked = !cb.checked;
-                    if (cb.checked) {
-                        selectedMovies.add(title);
-                        checkIcon.classList.remove('opacity-0');
-                        checkIcon.classList.add('opacity-100');
-                        borderDiv.classList.remove('border-zinc-800');
-                        borderDiv.classList.add('border-red-600');
+                card.onclick = () => {
+                    const check = card.querySelector('.check-icon');
+                    const border = card.querySelector('.aspect-\\[2\\/3\\]');
+                    if (selectedMovies.has(titleKey)) {
+                        selectedMovies.delete(titleKey);
+                        check.classList.replace('opacity-100', 'opacity-0');
+                        border.classList.replace('border-red-600', 'border-zinc-800');
                     } else {
-                        selectedMovies.delete(title);
-                        checkIcon.classList.remove('opacity-100');
-                        checkIcon.classList.add('opacity-0');
-                        borderDiv.classList.remove('border-red-600');
-                        borderDiv.classList.add('border-zinc-800');
+                        selectedMovies.add(titleKey);
+                        check.classList.replace('opacity-0', 'opacity-100');
+                        border.classList.replace('border-zinc-800', 'border-red-600');
                     }
-                });
-
+                };
                 grid.appendChild(card);
             });
+            renderPagination();
         }
 
-        renderMovies(allMovies.slice(0, 60));
+        // Lógica de Paginação
+        function renderPagination() {
+            paginationContainer.innerHTML = '';
+            const totalPages = Math.ceil(filteredMovies.length / itemsPerPage);
+            if (totalPages <= 1) return;
+
+            const createBtn = (label, page, active = false, disabled = false) => {
+                const btn = document.createElement('button');
+                btn.className = `page-btn ${active ? 'active' : ''} text-sm`;
+                btn.textContent = label;
+                btn.disabled = disabled;
+                btn.type = 'button';
+                btn.onclick = () => { currentPage = page; renderMovies(); window.scrollTo({ top: document.getElementById('selection').offsetTop - 100, behavior: 'smooth' }); };
+                return btn;
+            };
+
+            paginationContainer.appendChild(createBtn('«', 1, false, currentPage === 1));
+            let start = Math.max(1, currentPage - 2);
+            let end = Math.min(totalPages, start + 4);
+            for (let i = start; i <= end; i++) paginationContainer.appendChild(createBtn(i, i, i === currentPage));
+            paginationContainer.appendChild(createBtn('»', totalPages, false, currentPage === totalPages));
+        }
+
+        // CORREÇÃO DA SUBMISSÃO: Envia todos os filmes selecionados, mesmo os fora da página atual
+        recForm.addEventListener('submit', function (e) {
+            if (selectedMovies.size === 0) {
+                alert("Selecione pelo menos um filme!");
+                e.preventDefault();
+                return;
+            }
+            selectedMovies.forEach(title => {
+                const hidden = document.createElement('input');
+                hidden.type = 'hidden';
+                hidden.name = 'movies';
+                hidden.value = title;
+                this.appendChild(hidden);
+            });
+        });
+
+        // Scroll suave automático ao carregar resultados
+        window.addEventListener('DOMContentLoaded', () => {
+            const results = document.getElementById('results');
+            if (results) {
+                setTimeout(() => {
+                    results.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 300);
+            }
+        });
 
         searchInput.addEventListener('input', (e) => {
             const term = e.target.value.toLowerCase();
-            if (term === '') {
-                renderMovies(allMovies.slice(0, 60));
-                return;
-            }
-
-            const filtered = allMovies.filter(movie => movie.title_pt.toLowerCase().includes(term));
-            renderMovies(filtered.slice(0, 60));
+            filteredMovies = allMovies.filter(m => (m.title_pt + m.title).toLowerCase().includes(term));
+            currentPage = 1;
+            renderMovies();
         });
 
-        if (window.location.hash === '#results' || document.getElementById('results')) {
-            document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
-        }
+        itemsPerPageSelect.onchange = (e) => { itemsPerPage = parseInt(e.target.value); currentPage = 1; renderMovies(); };
+        renderMovies();
     </script>
 </body>
 
