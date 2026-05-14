@@ -213,3 +213,7 @@ Projeto acadêmico desenvolvido para aplicação de técnicas de IA em sistemas 
 
 MovieLens Dataset  
 https://grouplens.org/datasets/movielens/
+
+
+## API Tmdb
+https://www.themoviedb.org/settings/api

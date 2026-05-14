@@ -1,59 +1,34 @@
 from flask import Flask, render_template, request
+import pandas as pd
 from src.preprocessing import load_data, create_user_movie_matrix
 from src.clustering import apply_kmeans
-import pandas as pd
+from src.recommendation import recommend_for_new_user
 
 app = Flask(__name__)
 
-ratings, movies = load_data()
-matrix = create_user_movie_matrix(ratings)
-matrix, model = apply_kmeans(matrix)
+ratings, _ = load_data()
+movies = pd.read_csv('data/movies_pt.csv')
 
-
-def recommend_from_movies(selected_movies):
-    selected_ids = movies[
-        movies["title"].isin(selected_movies)
-    ]["movieId"].tolist()
-
-    similar_users = ratings[
-        ratings["movieId"].isin(selected_ids)
-    ]["userId"].unique()
-
-    recommendations = ratings[
-        ratings["userId"].isin(similar_users)
-    ]
-
-    recommendations = recommendations[
-        ~recommendations["movieId"].isin(selected_ids)
-    ]
-
-    top_movies = (
-        recommendations.groupby("movieId")["rating"]
-        .mean()
-        .sort_values(ascending=False)
-        .head(12)
-        .index
-    )
-
-    return movies[movies["movieId"].isin(top_movies)]
-
+matrix, _ = create_user_movie_matrix(ratings)
+matrix, kmeans_model = apply_kmeans(matrix)
 
 @app.route("/", methods=["GET", "POST"])
 def index():
     recommendations = None
-
-    movie_titles = sorted(movies["title"].tolist())[:300]
+    
+    movies_list = movies[["movieId", "title_pt", "poster_url"]].head(300).fillna("").to_dict(orient="records")
 
     if request.method == "POST":
-        selected_movies = request.form.getlist("movies")
+        selected_titles = request.form.getlist("movies")
 
-        if selected_movies:
-            recommendations = recommend_from_movies(selected_movies)
-            recommendations = recommendations.to_dict(orient="records")
+        if selected_titles:
+            selected_ids = movies[movies["title_pt"].isin(selected_titles)]["movieId"].tolist()
+            recs_df = recommend_for_new_user(selected_ids, matrix, kmeans_model, movies, top_n=12)
+            recommendations = recs_df.to_dict(orient="records")
 
     return render_template(
         "index.html",
-        movie_titles=movie_titles,
+        movies_list=movies_list,
         recommendations=recommendations
     )
 

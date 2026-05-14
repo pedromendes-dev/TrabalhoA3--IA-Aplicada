@@ -2,66 +2,124 @@
 <html lang="pt-br">
 
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Movie AI Recommender</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Recomendação de Filmes</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Urbanist', sans-serif;
+            background-color: #0a0a0a;
+            color: white;
+        }
+
+        .netflix-card {
+            transition: transform 0.3s ease;
+            cursor: pointer;
+        }
+
+        .netflix-card:hover {
+            transform: scale(1.05);
+            z-index: 10;
+        }
+
+        .red-gradient {
+            background: linear-gradient(180deg, rgba(229, 9, 20, 0) 0%, rgba(229, 9, 20, 0.8) 100%);
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #141414;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #e50914;
+            border-radius: 10px;
+        }
+    </style>
 </head>
 
-<body>
+<body class="overflow-x-hidden">
 
-    <header>
-        <div class="logo">🎬 MovieAI</div>
+    <nav
+        class="fixed top-0 w-full z-50 bg-gradient-to-b from-black to-transparent px-8 py-4 flex justify-between items-center">
+        <h1 class="text-3-xl font-bold text-red-600 tracking-tighter text-2xl uppercase">Sistema de Recomendação <span
+                class="text-white">IA</span></h1>
+        <div class="flex gap-4">
+            <i class="fa-solid fa-magnifying-glass text-xl"></i>
+            <i class="fa-solid fa-bell text-xl"></i>
+            <div class="w-8 h-8 bg-blue-500 rounded"></div>
+        </div>
+    </nav>
 
-        <nav>
-            <a href="#">Home</a>
-            <a href="#">Recomendações</a>
-            <a href="#">Sobre</a>
-        </nav>
+    <header class="relative h-[70vh] flex items-center px-8 md:px-16 overflow-hidden">
+        <div class="absolute inset-0 bg-cover bg-center opacity-40"
+            style="background-image: url('https://images.unsplash.com/photo-1626814026160-2237a95fc5a0?auto=format&fit=crop&q=80&w=2070');">
+        </div>
+        <div class="absolute inset-0 bg-gradient-to-r from-black via-transparent to-transparent"></div>
+
+        <div class="relative z-10 max-w-2xl">
+            <h2 class="text-5xl md:text-7xl font-bold mb-4">Descubra sua próxima história</h2>
+            <p class="text-lg text-gray-300 mb-8">Nossa inteligência artificial analisa milhares de padrões para
+                recomendar exatamente o que você quer assistir agora.</p>
+            <a href="#selection"
+                class="bg-red-600 hover:bg-red-700 text-white px-8 py-3 rounded-md font-bold text-lg transition inline-block">Começar
+                Agora</a>
+        </div>
     </header>
 
-    <section class="hero">
-        <div class="hero-content">
-            <h1>Descubra filmes perfeitos para você</h1>
-            <p>
-                Sistema inteligente utilizando Filtragem Colaborativa e K-Means
-                para recomendar filmes personalizados.
-            </p>
-        </div>
-    </section>
+    <main id="selection" class="px-8 md:px-16 py-12">
 
-    <main class="container">
+        <section class="mb-16">
+            <div class="flex justify-between items-end mb-6">
+                <div>
+                    <h3 class="text-2xl font-semibold">O que você gosta?</h3>
+                    <p class="text-gray-400">Selecione alguns filmes para treinarmos sua IA</p>
+                </div>
+                <div class="relative">
+                    <input type="text" id="movieSearch" placeholder="Pesquisar filmes..."
+                        class="bg-zinc-800 text-white border-none rounded-full px-6 py-2 w-64 focus:ring-2 focus:ring-red-600 outline-none">
+                </div>
+            </div>
 
-        <section class="recommendation-panel">
-            <h2>Escolha filmes que você gosta</h2>
-
-            <form method="POST">
-
-                <div class="movie-selector">
-                    {% for movie in movie_titles %}
-                    <label class="checkbox-item">
-                        <input type="checkbox" name="movies" value="{{ movie }}">
-                        <span>{{ movie }}</span>
-                    </label>
-                    {% endfor %}
+            <form action="/" method="POST" id="recommendationForm">
+                <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6" id="movieGrid">
                 </div>
 
-                <button type="submit">
-                    Recomendar filmes parecidos
-                </button>
+                <div class="fixed bottom-8 left-1/2 -translate-x-1/2 z-50">
+                    <button type="submit"
+                        class="bg-white text-black px-12 py-4 rounded-full font-bold text-xl shadow-2xl hover:bg-red-600 hover:text-white transition-all transform hover:scale-110 active:scale-95">
+                        Gerar Recomendações <i class="fa-solid fa-wand-magic-sparkles ml-2"></i>
+                    </button>
+                </div>
             </form>
         </section>
 
         {% if recommendations %}
-        <section>
-            <h2 class="section-title">Filmes recomendados</h2>
-
-            <div class="movies-grid">
+        <section id="results" class="py-12 border-t border-zinc-800">
+            <h3 class="text-3xl font-bold mb-8 text-red-600">Recomendados para Você</h3>
+            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
                 {% for movie in recommendations %}
-                <div class="movie-card">
-                    <div class="movie-poster">🎥</div>
-                    <h3>{{ movie.title }}</h3>
-                    <p>{{ movie.genres }}</p>
+                <div class="netflix-card bg-zinc-900 rounded-lg overflow-hidden border border-zinc-800">
+                    <div class="aspect-[2/3] bg-zinc-800 relative">
+                        {% if movie.poster_url %}
+                        <img src="{{ movie.poster_url }}" alt="{{ movie.title_pt }}"
+                            class="w-full h-full object-cover absolute inset-0 z-0">
+                        {% endif %}
+
+                        <div class="absolute inset-0 red-gradient opacity-60 z-10"></div>
+
+                        <div class="relative z-20 h-full flex flex-col justify-end p-4">
+                            <span class="text-xs font-bold text-white uppercase tracking-widest">{{
+                                movie.genres.split('|')[0] }}</span>
+                            <h4 class="font-bold text-lg leading-tight text-white">{{ movie.title_pt }}</h4>
+                        </div>
+                    </div>
                 </div>
                 {% endfor %}
             </div>
@@ -70,13 +128,95 @@
 
     </main>
 
-    <footer>
-        <p>
-            Desenvolvido por Yuri Lucas
-        </p>
-        <p>Projeto de Inteligência Artificial</p>
+    <footer class="py-12 px-8 text-center text-gray-500 text-sm">
+        <p>&copy; Projeto de Inteligência Artificial - Sistema de Recomendação</p>
     </footer>
 
+    <script id="movies-data" type="application/json">
+        {{ movies_list | tojson }}
+    </script>
+
+    <script>
+        const allMovies = JSON.parse(document.getElementById('movies-data').textContent);
+        const grid = document.getElementById('movieGrid');
+        const searchInput = document.getElementById('movieSearch');
+        const selectedMovies = new Set();
+
+        function renderMovies(moviesToRender) {
+            grid.innerHTML = '';
+            moviesToRender.forEach(movie => {
+                const title = movie.title_pt;
+                const isChecked = selectedMovies.has(title) ? 'checked' : '';
+                const opacityClass = selectedMovies.has(title) ? 'opacity-100' : 'opacity-0';
+                const borderClass = selectedMovies.has(title) ? 'border-red-600' : 'border-zinc-800';
+
+                let imageHtml = '';
+                if (movie.poster_url) {
+                    imageHtml = `<img src="${movie.poster_url}" alt="${title}" class="w-full h-full object-cover">`;
+                } else {
+                    imageHtml = `<div class="flex items-center justify-center h-full p-4 text-center"><span class="text-sm font-medium">${title}</span></div>`;
+                }
+
+                const card = document.createElement('div');
+                card.className = 'netflix-card relative rounded-lg overflow-hidden group movie-item';
+                card.innerHTML = `
+                    <input type="checkbox" name="movies" value="${title}" class="hidden peer" ${isChecked}>
+                    <div class="aspect-[2/3] bg-zinc-900 border ${borderClass} relative">
+                        ${imageHtml}
+                    </div>
+                    <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <i class="fa-solid fa-plus text-3xl"></i>
+                    </div>
+                    <div class="absolute top-2 right-2 ${opacityClass} transition-opacity check-icon">
+                        <i class="fa-solid fa-circle-check text-red-600 text-2xl bg-white rounded-full"></i>
+                    </div>
+                    <div class="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black to-transparent opacity-0 group-hover:opacity-100 transition-opacity text-center">
+                        <span class="text-xs font-bold drop-shadow-md">${title}</span>
+                    </div>
+                `;
+
+                card.addEventListener('click', () => {
+                    const cb = card.querySelector('input');
+                    const checkIcon = card.querySelector('.check-icon');
+                    const borderDiv = card.querySelector('.aspect-\\[2\\/3\\]');
+
+                    cb.checked = !cb.checked;
+                    if (cb.checked) {
+                        selectedMovies.add(title);
+                        checkIcon.classList.remove('opacity-0');
+                        checkIcon.classList.add('opacity-100');
+                        borderDiv.classList.remove('border-zinc-800');
+                        borderDiv.classList.add('border-red-600');
+                    } else {
+                        selectedMovies.delete(title);
+                        checkIcon.classList.remove('opacity-100');
+                        checkIcon.classList.add('opacity-0');
+                        borderDiv.classList.remove('border-red-600');
+                        borderDiv.classList.add('border-zinc-800');
+                    }
+                });
+
+                grid.appendChild(card);
+            });
+        }
+
+        renderMovies(allMovies.slice(0, 60));
+
+        searchInput.addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase();
+            if (term === '') {
+                renderMovies(allMovies.slice(0, 60));
+                return;
+            }
+
+            const filtered = allMovies.filter(movie => movie.title_pt.toLowerCase().includes(term));
+            renderMovies(filtered.slice(0, 60));
+        });
+
+        if (window.location.hash === '#results' || document.getElementById('results')) {
+            document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
 </body>
 
 </html>
