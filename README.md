@@ -24,7 +24,6 @@ O sistema recomenda filmes com base em:
 
 ## 📂 Estrutura do projeto
 
-```bash
 TrabalhoA3--IA-Aplicada/
 │
 ├── app.py
@@ -33,20 +32,19 @@ TrabalhoA3--IA-Aplicada/
 ├── README.md
 │
 ├── data/
-│   ├── movies.csv
-│   ├── ratings.csv
+│   ├── movies.csv
+│   ├── ratings.csv
 │
 ├── src/
-│   ├── preprocessing.py
-│   ├── clustering.py
-│   ├── recommendation.py
+│   ├── preprocessing.py
+│   ├── clustering.py
+│   ├── recommendation.py
 │
 ├── templates/
-│   └── index.html
+│   └── index.html
 │
 ├── static/
-│   └── style.css
-```
+│   └── style.css
 
 ---
 
@@ -62,11 +60,9 @@ Baixar:
 
 Após extrair, mover para a pasta `data/`:
 
-```bash
 data/
 ├── movies.csv
 ├── ratings.csv
-```
 
 ---
 
@@ -74,15 +70,11 @@ data/
 
 ### 1. Clonar repositório
 
-```bash
 git clone https://github.com/SEU-USUARIO/SEU-REPOSITORIO.git
-```
 
 Entrar na pasta:
 
-```bash
 cd TrabalhoA3--IA-Aplicada
-```
 
 ---
 
@@ -90,31 +82,23 @@ cd TrabalhoA3--IA-Aplicada
 
 Windows:
 
-```bash
 python -m venv venv
-```
 
 Ativar:
 
-```bash
 .\venv\Scripts\Activate
-```
 
 ---
 
 ### 3. Instalar dependências
 
-```bash
 python -m pip install -r requirements.txt
-```
 
 ---
 
 ### 4. Rodar aplicação
 
-```bash
 python app.py
-```
 
 ---
 
@@ -122,9 +106,7 @@ python app.py
 
 Acesse:
 
-```bash
 http://127.0.0.1:5000
-```
 
 ---
 
@@ -138,9 +120,7 @@ O sistema carrega:
 
 e cria uma matriz:
 
-```bash
 usuário x filme
-```
 
 ---
 
@@ -186,9 +166,7 @@ Após encontrar usuários similares:
 
 Instalar dependências:
 
-```bash
 python -m pip install -r requirements.txt
-```
 
 ---
 
@@ -196,10 +174,8 @@ python -m pip install -r requirements.txt
 
 Verifique:
 
-```bash
 data/movies.csv
 data/ratings.csv
-```
 
 ---
 
