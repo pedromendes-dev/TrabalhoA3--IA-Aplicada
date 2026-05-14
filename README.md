@@ -24,27 +24,32 @@ O sistema recomenda filmes com base em:
 
 ## 📂 Estrutura do projeto
 
+```text
 TrabalhoA3--IA-Aplicada/
 │
 ├── app.py
 ├── main.py
+├── enrich_dataset.py
 ├── requirements.txt
 ├── README.md
 │
 ├── data/
-│   ├── movies.csv
-│   ├── ratings.csv
+│   ├── movies.csv
+│   ├── ratings.csv
+│   ├── links.csv
+│   └── movies_pt.csv
 │
 ├── src/
-│   ├── preprocessing.py
-│   ├── clustering.py
-│   ├── recommendation.py
+│   ├── preprocessing.py
+│   ├── clustering.py
+│   └── recommendation.py
 │
 ├── templates/
-│   └── index.html
+│   └── index.html
 │
-├── static/
-│   └── style.css
+└── static/
+    └── style.css
+```
 
 ---
 
@@ -60,9 +65,12 @@ Baixar:
 
 Após extrair, mover para a pasta `data/`:
 
+```text
 data/
 ├── movies.csv
 ├── ratings.csv
+├── links.csv
+```
 
 ---
 
@@ -70,11 +78,10 @@ data/
 
 ### 1. Clonar repositório
 
-git clone https://github.com/SEU-USUARIO/SEU-REPOSITORIO.git
-
-Entrar na pasta:
-
+```bash
+git clone [https://github.com/SEU-USUARIO/SEU-REPOSITORIO.git](https://github.com/SEU-USUARIO/SEU-REPOSITORIO.git)
 cd TrabalhoA3--IA-Aplicada
+```
 
 ---
 
@@ -82,31 +89,46 @@ cd TrabalhoA3--IA-Aplicada
 
 Windows:
 
+```bash
 python -m venv venv
-
-Ativar:
-
 .\venv\Scripts\Activate
+```
 
 ---
 
 ### 3. Instalar dependências
 
+```bash
 python -m pip install -r requirements.txt
+```
 
 ---
 
-### 4. Rodar aplicação
+### 4. Gerar nomes e imagens em português
 
+*É necessário adicionar sua chave da API no arquivo `enrich_dataset.py` antes de rodar.*
+
+```bash
+python enrich_dataset.py
+```
+
+---
+
+### 5. Rodar aplicação
+
+```bash
 python app.py
+```
 
 ---
 
-### 5. Abrir navegador
+### 6. Abrir navegador
 
 Acesse:
 
-http://127.0.0.1:5000
+```text
+[http://127.0.0.1:5000](http://127.0.0.1:5000)
+```
 
 ---
 
@@ -120,7 +142,9 @@ O sistema carrega:
 
 e cria uma matriz:
 
+```text
 usuário x filme
+```
 
 ---
 
@@ -154,9 +178,9 @@ Após encontrar usuários similares:
 
 ## 📊 Exemplo de uso
 
-1. Selecionar usuário
+1. Selecionar usuário na interface
 2. Clicar em **Gerar Recomendações**
-3. Visualizar filmes sugeridos
+3. Visualizar filmes sugeridos com pôsteres
 
 ---
 
@@ -166,16 +190,21 @@ Após encontrar usuários similares:
 
 Instalar dependências:
 
+```bash
 python -m pip install -r requirements.txt
+```
 
 ---
 
 ### Erro: arquivo não encontrado
 
-Verifique:
+Verifique se extraiu corretamente ou se rodou o script da API:
 
+```text
 data/movies.csv
 data/ratings.csv
+data/movies_pt.csv
+```
 
 ---
 
@@ -189,7 +218,6 @@ Projeto acadêmico desenvolvido para aplicação de técnicas de IA em sistemas 
 
 MovieLens Dataset  
 https://grouplens.org/datasets/movielens/
-
 
 ## API Tmdb
 https://www.themoviedb.org/settings/api
