@@ -1,95 +1,223 @@
-# Sistema de Recomendação MovieLens
+# 🎬 Sistema de Recomendação de Filmes com IA
 
-Este projeto implementa um sistema de recomendação de filmes baseado em filtragem colaborativa e clusterização de usuários (K-Means), utilizando o dataset MovieLens.
+Projeto desenvolvido para a disciplina de Inteligência Artificial.
 
-## Funcionalidades
+O sistema recomenda filmes com base em:
 
-- Recomendação baseada em similaridade entre usuários
-- Recomendação baseada em clusterização (K-Means)
-- API REST com FastAPI para integração com frontend ou testes via Swagger
+- Filtragem colaborativa
+- Clusterização de usuários com K-Means
+- Dataset MovieLens
 
-## Estrutura do Projeto
+---
 
-- `main.py`: Carrega os dados, treina os modelos de recomendação e expõe funções para recomendação
-- `api.py`: API REST para servir recomendações
-- `data/`: Coloque aqui os arquivos do MovieLens (`u.data`, `u.item`, etc)
-- `tests/`: Testes automatizados para garantir a correta funcionalidade
+## 📌 Tecnologias utilizadas
 
-## Como rodar o projeto
+- Python 3
+- Flask
+- Pandas
+- NumPy
+- Scikit-learn
+- HTML
+- CSS
 
-### 1. Instale as dependências
+---
+
+## 📂 Estrutura do projeto
+
+```text
+TrabalhoA3--IA-Aplicada/
+│
+├── app.py
+├── main.py
+├── enrich_dataset.py
+├── requirements.txt
+├── README.md
+│
+├── data/
+│   ├── movies.csv
+│   ├── ratings.csv
+│   ├── links.csv
+│   └── movies_pt.csv
+│
+├── src/
+│   ├── preprocessing.py
+│   ├── clustering.py
+│   └── recommendation.py
+│
+├── templates/
+│   └── index.html
+│
+└── static/
+    └── style.css
+```
+
+---
+
+## 📥 Download do dataset
+
+Baixe o dataset MovieLens:
+
+https://grouplens.org/datasets/movielens/
+
+Baixar:
+
+**ml-latest-small.zip**
+
+Após extrair, mover para a pasta `data/`:
+
+```text
+data/
+├── movies.csv
+├── ratings.csv
+├── links.csv
+```
+
+---
+
+## 🚀 Como executar o projeto
+
+### 1. Clonar repositório
+
+```bash
+git clone [https://github.com/SEU-USUARIO/SEU-REPOSITORIO.git](https://github.com/SEU-USUARIO/SEU-REPOSITORIO.git)
+cd TrabalhoA3--IA-Aplicada
+```
+
+---
+
+### 2. Criar ambiente virtual
+
+Windows:
+
+```bash
+py -m venv venv
+.\venv\Scripts\Activate
+```
+
+---
+
+### 3. Instalar dependências
 
 ```bash
 pip install -r requirements.txt
 ```
-Ou, se não houver requirements.txt:
-```bash
-pip install pandas scikit-learn fastapi uvicorn python-dotenv
-```
-
-### 2. Execute o script principal (opcional)
-
-```bash
-python main.py
-```
-
-### 3. Rode a API
-
-```bash
-uvicorn api:app --reload
-```
-
-Acesse a documentação automática em: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
-
-## Endpoints disponíveis
-
-- `/` — Status da API
-- `/recommend/{user_id}` — Recomendação baseada em similaridade
-- `/recommend_cluster/{user_id}` — Recomendação baseada em cluster
-
-## Exemplo de uso
-
-```python
-import requests
-resp = requests.get('http://127.0.0.1:8000/recommend/1')
-print(resp.json())
-```
-
-## Arquitetura
-
-```
-Frontend (React, etc)
-   ↓
-FastAPI (Python)
-   ↓
-Módulo IA (Recomendação + K-means)
-   ↓
-Dataset MovieLens
-```
-
-## Abordagens de IA
-
-- **Filtragem colaborativa**: recomenda filmes com base em usuários similares
-- **Clusterização (K-means)**: segmenta usuários em grupos de interesse e recomenda com base no grupo
-
-## Testes Automatizados
-
-Os testes foram separados do código principal e ficam em `tests/test_recommender.py`.
-
-Para rodar os testes automatizados e garantir que as funções principais estão funcionando corretamente:
-
-```bash
-python -m unittest tests/test_recommender.py
-```
-
-- O arquivo `main.py` contém apenas o código de produção.
-- Todos os prints e execuções de teste foram removidos de `main.py`.
-- Siga essa estrutura para manter o projeto organizado e facilitar a manutenção.
-
-## Diferencial para apresentação
-
-> "Utilizamos duas abordagens: filtragem colaborativa (similaridade) e clusterização com K-means para segmentação de usuários."
 
 ---
 
-Qualquer dúvida ou sugestão, abra uma issue ou entre em contato!
+### 4. Gerar nomes e imagens em português
+
+*É necessário adicionar sua chave da API no arquivo `enrich_dataset.py` antes de rodar.*
+
+```bash
+py enrich_dataset.py
+```
+
+---
+
+### 5. Rodar aplicação
+
+```bash
+py app.py
+```
+
+---
+
+### 6. Abrir navegador
+
+Acesse:
+
+```text
+[http://127.0.0.1:5000](http://127.0.0.1:5000)
+```
+
+---
+
+## 🧠 Como funciona
+
+### 1. Pré-processamento
+O sistema carrega:
+
+- avaliações dos usuários
+- lista de filmes
+
+e cria uma matriz:
+
+```text
+usuário x filme
+```
+
+---
+
+### 2. Clusterização
+Utiliza K-Means para agrupar usuários com gostos semelhantes.
+
+Exemplo:
+
+- Cluster 1 → ação
+- Cluster 2 → romance
+- Cluster 3 → comédia
+
+---
+
+### 3. Filtragem colaborativa
+Após encontrar usuários similares:
+
+- identifica filmes bem avaliados
+- recomenda ao usuário selecionado
+
+---
+
+## 🎯 Funcionalidades
+
+- Seleção de usuário
+- Geração de recomendações
+- Interface web
+- Exibição de filmes e gêneros
+
+---
+
+## 📊 Exemplo de uso
+
+1. Selecionar usuário na interface
+2. Clicar em **Gerar Recomendações**
+3. Visualizar filmes sugeridos com pôsteres
+
+---
+
+## ⚠️ Possíveis erros
+
+### Erro: módulo não encontrado
+
+Instalar dependências:
+
+```bash
+python -m pip install -r requirements.txt
+```
+
+---
+
+### Erro: arquivo não encontrado
+
+Verifique se extraiu corretamente ou se rodou o script da API:
+
+```text
+data/movies.csv
+data/ratings.csv
+data/movies_pt.csv
+```
+
+---
+
+## 👨‍💻 Autor
+
+Projeto acadêmico desenvolvido para aplicação de técnicas de IA em sistemas de recomendação.
+
+---
+
+## 📚 Dataset
+
+MovieLens Dataset  
+https://grouplens.org/datasets/movielens/
+
+## API Tmdb
+https://www.themoviedb.org/settings/api
