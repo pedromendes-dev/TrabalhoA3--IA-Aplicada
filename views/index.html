@@ -1,3 +1,10 @@
+<!--
+    views/index.html — Interface principal do Sistema de Recomendação de Filmes
+    Renderizado pelo Flask via Jinja2. Recebe duas variáveis do contexto:
+      - movies_list: lista de todos os filmes disponíveis para seleção
+      - recommendations: lista de filmes recomendados pela IA (None se GET)
+    Estilizado com Tailwind CSS (CDN) + Font Awesome + Urbanist (Google Fonts).
+-->
 <!DOCTYPE html>
 <html lang="pt-br">
 
@@ -49,6 +56,26 @@
             opacity: 0.3;
             cursor: not-allowed;
         }
+
+        @keyframes card-snap {
+            0%   { transform: scale(1); }
+            35%  { transform: scale(1.09); }
+            65%  { transform: scale(0.95); }
+            100% { transform: scale(1); }
+        }
+        @keyframes check-pop {
+            0%   { transform: scale(0) rotate(-15deg); opacity: 0; }
+            55%  { transform: scale(1.35) rotate(8deg); opacity: 1; }
+            80%  { transform: scale(0.9) rotate(-3deg); }
+            100% { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+        @keyframes check-out {
+            0%   { transform: scale(1); opacity: 1; }
+            100% { transform: scale(0); opacity: 0; }
+        }
+        .snap-anim { animation: card-snap 0.32s cubic-bezier(.36,.07,.19,.97) both; }
+        .check-pop { animation: check-pop 0.38s cubic-bezier(.36,.07,.19,.97) both; }
+        .check-out { animation: check-out 0.2s ease forwards; }
 
         /* ── Nav icons ── */
         .nav-icon {
@@ -122,6 +149,66 @@
         }
         .search-bar-nav input::placeholder { color: #666; }
 
+        /* Toast */
+        #toast {
+            position: fixed;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-30px);
+            background: #141414;
+            border: 1px solid #2a2a2a;
+            color: white;
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: 0 16px 48px rgba(0,0,0,0.85), 0 0 0 1px rgba(229,9,20,0.15);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.35s cubic-bezier(.4,0,.2,1), transform 0.35s cubic-bezier(.4,0,.2,1);
+            z-index: 999;
+            min-width: 280px;
+        }
+        #toast.show {
+            opacity: 1;
+            pointer-events: all;
+            transform: translateX(-50%) translateY(0);
+        }
+        #toast-body {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 18px;
+        }
+        #toast-icon {
+            width: 36px; height: 36px;
+            background: rgba(229,9,20,0.15);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+        }
+        #toast-close {
+            margin-left: auto;
+            color: #666;
+            cursor: pointer;
+            padding: 4px;
+            transition: color 0.2s;
+            flex-shrink: 0;
+        }
+        #toast-close:hover { color: #fff; }
+        #toast-progress {
+            height: 3px;
+            background: #e50914;
+            width: 100%;
+            transform-origin: left;
+            animation: none;
+        }
+        @keyframes toast-shrink {
+            from { transform: scaleX(1); }
+            to   { transform: scaleX(0); }
+        }
+        #toast.show #toast-progress {
+            animation: toast-shrink 3s linear forwards;
+        }
+
         #notif-badge {
             position: absolute;
             top: 2px; right: 2px;
@@ -138,6 +225,21 @@
 </head>
 
 <body class="overflow-x-hidden">
+
+    <!-- Toast -->
+    <div id="toast">
+        <div id="toast-body">
+            <div id="toast-icon">
+                <i class="fa-solid fa-film text-red-500"></i>
+            </div>
+            <div>
+                <p class="font-semibold text-sm text-white">Nenhum filme selecionado</p>
+                <p class="text-xs text-gray-400 mt-0.5">Selecione um filme primeiro.</p>
+            </div>
+            <i class="fa-solid fa-xmark text-lg" id="toast-close"></i>
+        </div>
+        <div id="toast-progress"></div>
+    </div>
 
     <nav class="fixed top-0 w-full z-50 bg-gradient-to-b from-black to-transparent px-8 py-4 flex justify-between items-center">
         <h1 class="text-3-xl font-bold text-red-600 tracking-tighter text-2xl uppercase">Sistema de Recomendação <span class="text-white">IA</span></h1>
@@ -320,13 +422,27 @@
                 card.onclick = () => {
                     const check = card.querySelector('.check-icon');
                     const border = card.querySelector('.aspect-\\[2\\/3\\]');
+
+                    // snap no card
+                    card.classList.remove('snap-anim');
+                    void card.offsetWidth;
+                    card.classList.add('snap-anim');
+                    card.addEventListener('animationend', () => card.classList.remove('snap-anim'), { once: true });
+
                     if (selectedMovies.has(titleKey)) {
                         selectedMovies.delete(titleKey);
-                        check.classList.replace('opacity-100', 'opacity-0');
+                        check.classList.remove('check-pop');
+                        check.classList.add('check-out');
+                        check.addEventListener('animationend', () => {
+                            check.classList.remove('check-out', 'opacity-100');
+                            check.classList.add('opacity-0');
+                        }, { once: true });
                         border.classList.replace('border-red-600', 'border-zinc-800');
                     } else {
                         selectedMovies.add(titleKey);
-                        check.classList.replace('opacity-0', 'opacity-100');
+                        check.classList.remove('check-out', 'opacity-0');
+                        check.classList.add('opacity-100', 'check-pop');
+                        check.addEventListener('animationend', () => check.classList.remove('check-pop'), { once: true });
                         border.classList.replace('border-zinc-800', 'border-red-600');
                     }
                     updateNotifBadge();
@@ -358,10 +474,28 @@
             paginationContainer.appendChild(createBtn('»', totalPages, false, currentPage === totalPages));
         }
 
+        let toastTimer;
+        function showToast() {
+            const toast = document.getElementById('toast');
+            const bar = document.getElementById('toast-progress');
+            toast.classList.remove('show');
+            bar.style.animation = 'none';
+            void bar.offsetWidth; // reflow para reiniciar animação
+            toast.classList.add('show');
+            bar.style.animation = '';
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        document.getElementById('toast-close').addEventListener('click', () => {
+            clearTimeout(toastTimer);
+            document.getElementById('toast').classList.remove('show');
+        });
+
         recForm.addEventListener('submit', function (e) {
             if (selectedMovies.size === 0) {
-                alert("Selecione pelo menos um filme!");
                 e.preventDefault();
+                showToast();
                 return;
             }
             selectedMovies.forEach(title => {
