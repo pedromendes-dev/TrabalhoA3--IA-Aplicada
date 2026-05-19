@@ -4,10 +4,10 @@ from src.preprocessing import load_data, create_user_movie_matrix
 from src.clustering import apply_kmeans
 from src.recommendation import recommend_for_new_user
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder='views')
 
 ratings, _ = load_data()
-movies = pd.read_csv('data/movies_pt.csv')
+movies = pd.read_csv('data/processed/movies_pt.csv')
 
 matrix, _ = create_user_movie_matrix(ratings)
 matrix, kmeans_model = apply_kmeans(matrix)

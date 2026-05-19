@@ -1,8 +1,8 @@
 import pandas as pd
 
 def load_data():
-    ratings = pd.read_csv('data/ratings.csv')
-    movies = pd.read_csv('data/movies.csv')
+    ratings = pd.read_csv('data/raw/ratings.csv')
+    movies = pd.read_csv('data/raw/movies.csv')
     return ratings, movies
 
 def create_user_movie_matrix(ratings):
